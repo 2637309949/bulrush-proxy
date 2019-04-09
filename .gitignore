@@ -1,0 +1,13 @@
+.idea
+.vscode
+.history
+
+pids
+logs
+build
+node_modules
+
+vendor/*
+!vendor/vendor.json
+
+/tmp/*
