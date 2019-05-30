@@ -1,0 +1,5 @@
+package: github.com/2637309949/bulrush-proxy
+import:
+- package: github.com/2637309949/bulrush
+- package: github.com/gin-gonic/gin
+  version: ^1.4.0
