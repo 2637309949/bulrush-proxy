@@ -24,7 +24,7 @@ type Proxy struct {
 }
 
 // Plugin for gin
-func (proxy *Proxy) Plugin() bulrush.PNRet {
+func (proxy *Proxy) Plugin() interface{} {
 	return func(httpProxy *gin.Engine) {
 		httpProxy.Use(func(c *gin.Context) {
 			// MatchString url
