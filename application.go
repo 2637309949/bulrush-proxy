@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,11 +49,18 @@ func (proxy *Proxy) Plugin(httpProxy *gin.Engine) {
 			url = c.Request.RequestURI
 		}
 		url = fmt.Sprintf("%s%s", proxy.Host, url)
+
 		proxyReq, err := http.NewRequest(c.Request.Method, url, bytes.NewReader(body))
 		proxyReq.Header = make(http.Header)
+
 		// Reassgin headers
 		for key, val := range c.Request.Header {
 			proxyReq.Header[key] = val
+		}
+
+		// replace host
+		if proxy.Host != "" {
+			proxyReq.Header["Host"] = []string{string(proxy.Host[strings.Index(proxy.Host, "://")+3:])}
 		}
 
 		client := &http.Client{}
@@ -62,12 +70,12 @@ func (proxy *Proxy) Plugin(httpProxy *gin.Engine) {
 			return
 		}
 		defer resp.Body.Close()
-
 		bodyContent, _ := ioutil.ReadAll(resp.Body)
-		c.Writer.Write(bodyContent)
+		c.Status(resp.StatusCode)
 		for key, val := range resp.Header {
 			c.Writer.Header()[key] = val
 		}
+		c.Writer.Write(bodyContent)
 		c.Abort()
 	})
 }
