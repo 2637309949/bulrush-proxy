@@ -24,7 +24,12 @@ type Proxy struct {
 
 // Plugin for gin
 func (proxy *Proxy) Plugin(httpProxy *gin.Engine) {
-	httpProxy.Use(func(c *gin.Context) {
+	httpProxy.Use(middleware(proxy))
+}
+
+// proxy middleware
+func middleware(proxy *Proxy) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		// MatchString url
 		if proxy.Match != "" {
 			r, _ := regexp.Compile(proxy.Match)
@@ -77,5 +82,5 @@ func (proxy *Proxy) Plugin(httpProxy *gin.Engine) {
 		}
 		c.Writer.Write(bodyContent)
 		c.Abort()
-	})
+	}
 }
