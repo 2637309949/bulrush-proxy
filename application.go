@@ -20,6 +20,14 @@ type Proxy struct {
 	res   func(gin.ResponseWriter, *http.Response)
 }
 
+// AddOptions defined add option
+func (proxy *Proxy) AddOptions(opts ...Option) *Proxy {
+	for _, v := range opts {
+		v.apply(proxy)
+	}
+	return proxy
+}
+
 // Plugin for gin
 func (proxy *Proxy) Plugin(httpProxy *gin.Engine) {
 	httpProxy.Use(middleware(proxy))

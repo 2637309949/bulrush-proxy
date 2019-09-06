@@ -51,12 +51,6 @@ func request(req *http.Request) (*http.Response, error) {
 
 func middleware(proxy *Proxy) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		url := resolve(c.Request.URL.Path, proxy)
-		if url == "" {
-			c.Next()
-			return
-		}
-
 		// MatchString url
 		if proxy.Match != "" {
 			r, _ := regexp.Compile(proxy.Match)
@@ -64,6 +58,14 @@ func middleware(proxy *Proxy) gin.HandlerFunc {
 				c.Next()
 				return
 			}
+		}
+
+		// Resolve url from cfg
+		url := resolve(c.Request.URL.Path, proxy)
+		if url == "" {
+			RushLogger.Debug("resolve empty url %v", url)
+			c.Next()
+			return
 		}
 
 		// Parse body
@@ -74,7 +76,6 @@ func middleware(proxy *Proxy) gin.HandlerFunc {
 
 		// Reassgin to body
 		c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
-
 		url = fmt.Sprintf("%s?%s", url, c.Request.URL.RawQuery)
 
 		proxyReq, err := http.NewRequest(c.Request.Method, url, bytes.NewReader(body))
@@ -103,6 +104,7 @@ func middleware(proxy *Proxy) gin.HandlerFunc {
 		defer resp.Body.Close()
 		bodyContent, _ := ioutil.ReadAll(resp.Body)
 		c.Status(resp.StatusCode)
+
 		for key, val := range resp.Header {
 			c.Writer.Header()[key] = val
 		}
@@ -111,7 +113,6 @@ func middleware(proxy *Proxy) gin.HandlerFunc {
 		if proxy.res != nil {
 			proxy.res(c.Writer, resp)
 		}
-
 		c.Writer.Write(bodyContent)
 		c.Abort()
 	}
