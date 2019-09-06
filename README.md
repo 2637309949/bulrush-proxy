@@ -1,5 +1,15 @@
-# bulrush-proxy
+## bulrush-proxy
+Lightweight HTTP proxy for bulrush
 
+```go
+var Proxy = &proxy.Proxy{
+	Host:  "https://www.baidu.com",
+	Match: "^/proxy",
+	Map: func(reqPath string) string {
+		return reqPath
+	},
+}
+```
 ## MIT License
 
 Copyright (c) 2018-2020 Double
